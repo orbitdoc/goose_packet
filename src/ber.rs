@@ -52,11 +52,11 @@ pub fn encode_octet_string(tag:u8,value:& [u8],buffer: &mut[u8],pos:usize,fill:b
 }
 
 
-/* pub fn encode_interger(tag:u8,value: i32,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
-    let mut new_pos=pos;
+pub fn encode_interger_general(tag:u8,value:  &[u8],buffer: &mut[u8],pos:usize,fill:bool) ->usize{
+    
+    compress_interger(tag,value,buffer,pos,fill)      
+}
 
-    new_pos
-} */
 pub fn encode_interger(tag:u8,value: i32,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     let compressed = value.to_be_bytes();
     compress_interger(tag,&compressed,buffer,pos,fill)      
@@ -100,6 +100,24 @@ pub fn compress_interger(tag:u8,compressed: &[u8],buffer: &mut[u8],pos:usize,fil
     buffer[new_pos..new_pos+compressed_size].copy_from_slice(&compressed[compress_start..]);
     new_pos+compressed_size
 }
+pub fn encode_float_general(tag:u8,bytes:&[u8],buffer: &mut[u8],pos:usize,fill:bool) ->usize{
+    
+    if !fill{
+        return bytes.len()+1;
+    }
+
+    let mut new_pos=pos;
+    buffer[new_pos]=tag;
+    new_pos+=1;
+    buffer[new_pos]=(bytes.len()+1) as u8; //?
+    new_pos+=1;
+    buffer[new_pos]=0x08; //exponent
+    new_pos+=1;
+    buffer[new_pos..new_pos+bytes.len()].copy_from_slice(&bytes);
+
+    new_pos+=bytes.len();
+    new_pos
+}
 
 pub fn encode_float(tag:u8,value:f32,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     let bytes=value.to_be_bytes();
@@ -122,7 +140,7 @@ pub fn encode_float(tag:u8,value:f32,buffer: &mut[u8],pos:usize,fill:bool) ->usi
 }
 pub fn encode_bit_string(tag:u8,value: u16,padding: u8,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     //println!("u32: {}",value);
-    let bytes = value.to_be_bytes();
+    let bytes = value.reverse_bits().to_be_bytes();
 
 
     if !fill{

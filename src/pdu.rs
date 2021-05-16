@@ -4,28 +4,29 @@
 use crate::ber::{*};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-type Integer =i32;
-type Unsigned =u32;
-type Float = f32;
-type VisibleString =String;
-type MmsString =String;
-type UtcTime= [u8;8];
-
-type Boolean = bool;
-
 #[derive(Debug)]
 pub enum IECData{
     array(Vec<IECData>),
     structure(Vec<IECData>),
-    boolean(Boolean),
-    integer(Integer),
-    unsigned(Unsigned),
-    visible_string(VisibleString),
-    mms_string(MmsString),
-    float(Float),
+    boolean(bool),
+
+    int8(i8),
+    int16(i16),
+    int32(i32),
+    int64(i64),
+
+    int8u(u8),
+    int16u(u16),
+    int32u(u32),
+
+    float32(f32),
+    float64(f64),
+
+    visible_string(String),
+    mms_string(String),
     bit_string{ padding: u8, val: u16 },
     octet_string(Vec<u8>),
-    utc_time(UtcTime)
+    utc_time([u8;8])
 }
 pub struct EthernetHeader {
     pub srcAddr:[u8;6],
@@ -38,16 +39,16 @@ pub struct EthernetHeader {
 }
 
 pub struct IECGoosePdu {
-    pub gocbRef: VisibleString,
+    pub gocbRef: String,
     pub timeAllowedtoLive: u32,
-    pub datSet: VisibleString,
-    pub goID: VisibleString,
-    pub t: UtcTime,
+    pub datSet: String,
+    pub goID: String,
+    pub t: [u8;8],
     pub stNum: u32,
     pub sqNum: u32,
-    pub simulation: Boolean,
+    pub simulation: bool,
     pub confRev: u32,
-    pub ndsCom: Boolean,
+    pub ndsCom: bool,
     pub numDatSetEntries: u32,
     pub allData: Vec<IECData>
 }
@@ -58,7 +59,16 @@ impl IECGoosePdu {
         println!("gocbRef:{},data:{:?}",self.gocbRef,self.allData);
     }
 }
-
+pub fn encodeGooseFrame(header: & mut EthernetHeader, pdu: & IECGoosePdu, buffer: &mut[u8], pos:usize) ->usize{
+    let mut new_pos=pos+ 26;
+    new_pos=encodeIECGoosePdu(pdu,buffer,new_pos);
+    let goose_length=new_pos-26+8;
+    let legnth_byte=goose_length.to_be_bytes();
+    header.length.copy_from_slice(&legnth_byte[6..]);
+    encodeEthernetHeader(header,buffer,0);
+    display_buffer(&buffer[pos..],new_pos);
+    new_pos
+}
 pub fn encodeEthernetHeader(header: & EthernetHeader, buffer: &mut[u8], pos:usize) ->usize{
 
     let mut new_pos=pos;
@@ -205,11 +215,21 @@ pub fn sizeIECDataElement(data: & IECData, buffer: &mut[u8]) ->usize{
 
     let dataSetSize=match  data{
         IECData::boolean (val)=> encode_boolean(0, *val, buffer, 0, fill),
-        IECData::integer (val)=> encode_interger(0, *val, buffer, 0, fill),
-        IECData::unsigned (val)=> encode_unsigned(0, *val, buffer, 0, fill),
+
+        IECData::int8 (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::int16 (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::int32 (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::int64 (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+  
+        IECData::int8u (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::int16u (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::int32u (val)=> encode_interger_general(0, &val.to_be_bytes(), buffer, 0, fill),
+
+        IECData::float32 (val)=> encode_float_general(0, &val.to_be_bytes(), buffer, 0, fill),
+        IECData::float64 (val)=> encode_float_general(0, &val.to_be_bytes(), buffer, 0, fill),
+
         IECData::visible_string (val)=> encode_string(0, val, buffer, 0, fill),
         IECData::mms_string (val)=> encode_string(0, val, buffer, 0, fill),
-        IECData::float (val)=> encode_float(0, *val, buffer, 0, fill),
         IECData::bit_string{padding,val}=>encode_bit_string(0, *val, *padding,buffer, 0, fill),
         IECData::array (val)=>encode_array(0,&val,buffer,0,fill),
         IECData::structure (val)=>encode_structure(0,&val,buffer,0,fill),
@@ -265,9 +285,19 @@ pub fn encodeIECDataElement(data: & IECData, buffer: &mut[u8], pos:usize) ->usiz
 
     let new_pos=match  data{
         IECData::boolean (val)=> encode_boolean(0x83, *val, buffer, new_pos, fill),
-        IECData::integer (val)=> encode_interger(0x85, *val, buffer, new_pos, fill),
-        IECData::unsigned (val)=> encode_unsigned(0x86, *val, buffer, new_pos, fill),
-        IECData::float (val)=> encode_float(0x87, *val, buffer, new_pos, fill),
+
+        IECData::int8 (val)=> encode_interger_general(0x85, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::int16 (val)=> encode_interger_general(0x85, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::int32 (val)=> encode_interger_general(0x85, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::int64 (val)=> encode_interger_general(0x85, &val.to_be_bytes(), buffer, new_pos, fill),
+
+        IECData::int8u (val)=> encode_interger_general(0x86, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::int16u (val)=> encode_interger_general(0x86, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::int32u (val)=> encode_interger_general(0x86, &val.to_be_bytes(), buffer, new_pos, fill),
+
+        IECData::float32 (val)=> encode_float_general(0x87, &val.to_be_bytes(), buffer, new_pos, fill),
+        IECData::float64 (val)=> encode_float_general(0x87, &val.to_be_bytes(), buffer, new_pos, fill),
+
         IECData::visible_string (val)=> encode_string(0x8a, val, buffer, new_pos, fill),
         IECData::mms_string (val)=> encode_string(0x90, val, buffer, new_pos, fill),
         IECData::bit_string{padding,val}=>encode_bit_string(0x84, *val, *padding,buffer, new_pos, fill),
@@ -297,4 +327,17 @@ pub fn getTimeMs()->[u8;8]{
     time_array[4..7].copy_from_slice(&nano_array[..3]);
     time_array[7]=0x18;
     time_array
+}
+
+fn display_buffer( buffer: &[u8], size:usize){
+    for i in 0..std::cmp::min(buffer.len(),size){
+        if (i)%8==0 {
+            print!("{:06x} ",i);
+        }
+        print!("{:02x} ",buffer[i]);
+        if (i+1)%8==0 {
+            print!("\n");
+        }
+    }
+    print!("\n");
 }
