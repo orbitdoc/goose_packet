@@ -3,17 +3,60 @@ extern crate goose_packet;
 use pnet::datalink::{self,interfaces,Channel, NetworkInterface};
 use goose_packet::pdu::{IECGoosePdu,EthernetHeader,IECData,encodeGooseFrame,getTimeMs};
 
+use std::env;
+
 const GOOSE_BUFFER_SIZE:usize = 512;
 
+fn display_network_interfaces(){
+    let interfaces = interfaces();
+    for interface in interfaces.iter() {
+        println!("interface  {}", interface.index);
+        println!("\t name {}", interface.name);
+        println!("\t ips {:?}", interface.ips);
+        println!("\t description {}", interface.description);
+
+    }
+}
+
 fn main(){
+    let interface_name = match env::args().nth(1){
+        Some (name)=>name,
+        None=>{
+            println!("please add an interface name as argument. the available interface in the system:");
+            display_network_interfaces();
+            panic!();
+        }
+    };
+
+    let interface_names_match =
+        |iface: &NetworkInterface| iface.name == interface_name;
+    let interfaces = interfaces();
+    // Find the network interface with the provided name
+    let interface = match interfaces.into_iter()
+                              .filter(interface_names_match)
+                              .next() {
+        Ok(val)=>val,
+        _=>{
+            println!("unknown interface name. the available interface in the system:");
+            display_network_interfaces();
+            panic!();           
+        }
+
+    };
+
+    let (mut tx, _) = match datalink::channel(&interface, Default::default()) {
+        Ok(Channel::Ethernet(tx, rx)) => (tx, rx),
+        Ok(_) => panic!("Unknown channel type"),
+        Err(e) => panic!("Error happened {}", e),
+    };
 
     let mut ether_header= EthernetHeader{
         srcAddr:[00 as u8;6],
         dstAddr:[0x01,0x0C,0xCD,0x01,0x00,0x00],
         TPID:[0x81,0x00],
-        TCI:[0x80,0x01], //?
+        TCI:[0x80,0x01], 
         ehterType:[0x88,0xB8],
-        APPID:[0x01,0x01],//?
+        APPID:[0x01,0x01],
         length:[0x00,0x00]
     };
     let current_time=getTimeMs();
@@ -59,28 +102,6 @@ fn main(){
     goose_pdu.numDatSetEntries=goose_pdu.allData.len() as u32;    
     let mut buffer=[0 as u8;GOOSE_BUFFER_SIZE];
     let goose_frame_size=encodeGooseFrame(&mut ether_header,&goose_pdu,&mut buffer,0);
-
-    let interfaces = interfaces();
-    //for interface in interfaces.iter() {
-    //    println!("{}", interface);
-    //}
-
-    let interface_name = 19;
-    let interface_names_match =
-        |iface: &NetworkInterface| iface.index == interface_name;
-
-    // Find the network interface with the provided name
-    let interface = interfaces.into_iter()
-                              .filter(interface_names_match)
-                              .next()
-                              .unwrap();
-
-
-    let (mut tx, _) = match datalink::channel(&interface, Default::default()) {
-        Ok(Channel::Ethernet(tx, rx)) => (tx, rx),
-        Ok(_) => panic!("Unknown channel type"),
-        Err(e) => panic!("Error happened {}", e),
-    };
 
     //tx.build_and_send(1, goose_frame_size, &mut |packet: &mut [u8]| {
     //    packet.copy_from_slice(&buffer[..goose_frame_size]);
