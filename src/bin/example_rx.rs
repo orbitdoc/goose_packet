@@ -1,7 +1,7 @@
 extern crate goose_packet;
 
 use pnet::datalink::{self,interfaces,Channel, NetworkInterface};
-use goose_packet::pdu::{IECGoosePdu,EthernetHeader,IECData,encodeGooseFrame,getTimeMs};
+use goose_packet::pdu::{IECGoosePdu,EthernetHeader,IECData,encodeGooseFrame,getTimeMs,decodeGooseFrame};
 
 use std::env;
 
@@ -75,26 +75,32 @@ fn main(){
         allData:
             vec![
             IECData::int8(2),
-            IECData::int32(234),
-            IECData::int64(234567890),
+            IECData::int16(2345),
             IECData::array(
                 vec![
-                    IECData::int8(-2),
-                    IECData::int32(-234),
-                    IECData::int64(-234567890),
-                    ]),
+                    IECData::int32(-234567),
+                    IECData::int32(8388608),
+                    IECData::int32(-8388608),
+                ]),
             IECData::structure(
-                vec![
-                    IECData::int32u(456),
-                    IECData::float32(0.123),
-                    IECData::octet_string(vec![0x22,0x33,0x66]),
-                    IECData::utc_time(current_time)
-                    ]),            
+                vec![                
+                IECData::int64(12345678901234),
+                IECData::int32u(456),
+                IECData::int32u(4294967040),       
+                IECData::structure(
+                    vec![                    
+                        IECData::float32(0.123),
+                        IECData::float64(0.123456),
+                        ]),
+                ]),
+            IECData::octet_string(vec![0x22,0x33,0x66]),
+            IECData::utc_time(current_time),
             IECData::boolean(true),
             IECData::boolean(false),
             IECData::visible_string("abc234".to_string()),
             IECData::mms_string("hÃllo".to_string()),
             IECData::bit_string{padding:3,val:1}
+
             ]
         
         };
@@ -102,7 +108,9 @@ fn main(){
     goose_pdu.numDatSetEntries=goose_pdu.allData.len() as u32;    
     let mut buffer=[0 as u8;GOOSE_BUFFER_SIZE];
     let goose_frame_size=encodeGooseFrame(&mut ether_header,&goose_pdu,&mut buffer,0);
-
+    let mut rx_header:EthernetHeader=Default::default();
+    let mut rx_pdu:IECGoosePdu=Default::default();
+    decodeGooseFrame(&mut rx_header,&mut rx_pdu,&buffer,0);   
     //tx.build_and_send(1, goose_frame_size, &mut |packet: &mut [u8]| {
     //    packet.copy_from_slice(&buffer[..goose_frame_size]);
     //});

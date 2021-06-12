@@ -1,5 +1,3 @@
-
-
 pub fn encode_boolean(tag:u8,value:bool,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     if !fill
     {
@@ -57,6 +55,11 @@ pub fn encode_interger_general(tag:u8,value:  &[u8],buffer: &mut[u8],pos:usize,f
     compress_interger(tag,value,buffer,pos,fill)      
 }
 
+pub fn encode_unsigned_general(tag:u8,value:  &[u8],buffer: &mut[u8],pos:usize,fill:bool) ->usize{
+    let prepend=[&[0x00 as u8], value].concat();
+    compress_interger(tag,&prepend,buffer,pos,fill)      
+}
+
 pub fn encode_interger(tag:u8,value: i32,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     let compressed = value.to_be_bytes();
     compress_interger(tag,&compressed,buffer,pos,fill)      
@@ -65,7 +68,9 @@ pub fn encode_interger(tag:u8,value: i32,buffer: &mut[u8],pos:usize,fill:bool) -
 pub fn encode_unsigned(tag:u8,value: u32,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     //println!("u32: {}",value);
     let compressed = value.to_be_bytes();
-    compress_interger(tag,&compressed,buffer,pos,fill)
+    let mut prepend=vec![0x00 as u8];
+    prepend.extend(&compressed);
+    compress_interger(tag,&prepend,buffer,pos,fill)
 }
 
 pub fn compress_interger(tag:u8,compressed: &[u8],buffer: &mut[u8],pos:usize,fill:bool) ->usize{
