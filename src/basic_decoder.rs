@@ -1,5 +1,3 @@
-use std::convert::TryInto;
-
 pub fn decode_boolean(value:&mut bool,buffer: &[u8],pos:usize) ->usize{
     *value=buffer[pos]!=0;
     pos+1
@@ -101,7 +99,11 @@ pub fn decode_bit_string(value:&mut  u16,padding:&mut u8,buffer: &[u8],pos:usize
     *padding=buffer[new_pos];
     new_pos+=1;
 
-    let mut bytes=[0 as u8;2];    
+    let mut bytes=[0 as u8;2];
+
+    if length!=2 {
+        println!("unexpected length in bit_string");    
+    }
     bytes.copy_from_slice(&buffer[new_pos..new_pos+2]);
     *value=u16::from_be_bytes(bytes).reverse_bits();
 
@@ -149,20 +151,4 @@ pub fn decode_tag_length(tag:&mut u8,value:&mut usize,buffer: &[u8],pos:usize) -
 
 
     new_pos
-}
-
-fn size_length(value: usize) ->usize
-{
-    if value<128 {
-        return 1;
-    }
-    else if value<256 {
-        return 2;
-    }
-    else if value<65535 {
-        return 3;
-    }
-    else {       
-        return 4;
-    }
 }
