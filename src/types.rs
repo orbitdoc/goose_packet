@@ -22,7 +22,7 @@ pub enum IECData{
 
     visible_string(String),
     mms_string(String),
-    bit_string{ padding: u8, val: u16 },
+    bit_string{ padding: u8, val: Vec<u8> },
     octet_string(Vec<u8>),
     utc_time([u8;8])
 }

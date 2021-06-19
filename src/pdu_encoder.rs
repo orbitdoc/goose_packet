@@ -129,7 +129,7 @@ pub fn sizeIECDataElement(data: & IECData, buffer: &mut[u8]) ->usize{
 
         IECData::visible_string (val)=> encode_string(0, val, buffer, 0, fill),
         IECData::mms_string (val)=> encode_string(0, val, buffer, 0, fill),
-        IECData::bit_string{padding,val}=>encode_bit_string(0, *val, *padding,buffer, 0, fill),
+        IECData::bit_string{padding,val}=>encode_bit_string(0, val, *padding,buffer, 0, fill),
         IECData::array (val)=>encode_array(0,&val,buffer,0,fill),
         IECData::structure (val)=>encode_structure(0,&val,buffer,0,fill),
         IECData::octet_string (val)=>encode_octet_string(0,&val,buffer,0,fill),
@@ -199,7 +199,7 @@ pub fn encodeIECDataElement(data: & IECData, buffer: &mut[u8], pos:usize) ->usiz
 
         IECData::visible_string (val)=> encode_string(0x8a, val, buffer, new_pos, fill),
         IECData::mms_string (val)=> encode_string(0x90, val, buffer, new_pos, fill),
-        IECData::bit_string{padding,val}=>encode_bit_string(0x84, *val, *padding,buffer, new_pos, fill),
+        IECData::bit_string{padding,val}=>encode_bit_string(0x84, val, *padding,buffer, new_pos, fill),
         IECData::array(val)=>encode_array(0xa1,&val,buffer,new_pos,fill),
         IECData::structure(val)=>encode_structure(0xa2,&val,buffer,new_pos,fill),
         IECData::octet_string(val)=> encode_octet_string(0x89, &val, buffer, new_pos, fill),

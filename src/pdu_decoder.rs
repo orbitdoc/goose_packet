@@ -108,7 +108,7 @@ pub fn decodeIECDataElement(buffer: &[u8], pos:usize) ->(usize,IECData){
         },      
         0x84=>{
             let mut padding:u8=0;
-            let mut val:u16=0;
+            let mut val:Vec<u8>=vec![0;length-1];
             new_pos=decode_bit_string(&mut val,&mut padding,buffer,new_pos,length);
             return (new_pos,IECData::bit_string {val,padding});            
         },

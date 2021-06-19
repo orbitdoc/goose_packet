@@ -93,21 +93,16 @@ pub fn decode_float_64(value:&mut f64,buffer: &[u8],pos:usize,length:usize) ->us
     pos+length
 }
 
-pub fn decode_bit_string(value:&mut  u16,padding:&mut u8,buffer: &[u8],pos:usize,length:usize) ->usize{
+pub fn decode_bit_string(value:& mut [u8],padding:&mut u8,buffer: &[u8],pos:usize,length:usize) ->usize{
     let mut new_pos=pos;
 
     *padding=buffer[new_pos];
     new_pos+=1;
 
-    let mut bytes=[0 as u8;2];
-
-    if length!=2 {
-        println!("unexpected length in bit_string");    
+    for i in 0..value.len()  {
+        value[value.len()-i-1]=buffer[new_pos+i].reverse_bits();
     }
-    bytes.copy_from_slice(&buffer[new_pos..new_pos+2]);
-    *value=u16::from_be_bytes(bytes).reverse_bits();
-
-    new_pos+2
+    new_pos+length
     
 }
 pub fn decode_tag_length(tag:&mut u8,value:&mut usize,buffer: &[u8],pos:usize) ->usize{

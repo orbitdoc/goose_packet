@@ -143,27 +143,27 @@ pub fn encode_float(tag:u8,value:f32,buffer: &mut[u8],pos:usize,fill:bool) ->usi
     new_pos+=bytes.len();
     new_pos
 }
-pub fn encode_bit_string(tag:u8,value: u16,padding: u8,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
+pub fn encode_bit_string(tag:u8,value:& [u8],padding: u8,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
     //println!("u32: {}",value);
-    let bytes = value.reverse_bits().to_be_bytes();
-
 
     if !fill{
-        return bytes.len()+1;
+        return value.len()+1;
     }
 
     let mut new_pos=pos;
    
     buffer[new_pos]=tag;
     new_pos+=1;
-    buffer[new_pos]=(bytes.len()+1) as u8; //?
+    buffer[new_pos]=(value.len()+1) as u8; //?
     new_pos+=1;
 
     buffer[new_pos]=padding;
     new_pos+=1;
     
-    buffer[new_pos..new_pos+2].copy_from_slice(&bytes);
-    new_pos+2
+    for i in 0..value.len()  {
+        buffer[new_pos+i]=value[value.len()-i-1].reverse_bits();
+    }
+    new_pos+value.len()
 }
 pub fn encode_tag_length(tag:u8,value: usize,buffer: &mut[u8],pos:usize,fill:bool) ->usize{
 

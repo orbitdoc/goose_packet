@@ -100,7 +100,7 @@ fn main(){
             IECData::boolean(false),
             IECData::visible_string("abc234".to_string()),
             IECData::mms_string("hÃllo".to_string()),
-            IECData::bit_string{padding:3,val:1}
+            IECData::bit_string{padding:3,val:vec![0x00,0x01]}
 
             ]
         
