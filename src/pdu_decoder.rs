@@ -198,7 +198,7 @@ pub fn decodeIECGoosePdu(pdu: & mut IECGoosePdu, buffer: &[u8], pos:usize) ->usi
     new_pos=decode_tag_length(&mut tag,&mut length,buffer,new_pos);
     new_pos=decodeIECData(&mut pdu.allData,buffer,new_pos,new_pos+length);
 
-    print!("decode pdu: {:?}",pdu);
+    //print!("decode pdu: {:?}",pdu);
     new_pos
 
 }

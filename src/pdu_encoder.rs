@@ -134,7 +134,7 @@ pub fn sizeIECDataElement(data: & IECData, buffer: &mut[u8]) ->usize{
         IECData::structure (val)=>encode_structure(0,&val,buffer,0,fill),
         IECData::octet_string (val)=>encode_octet_string(0,&val,buffer,0,fill),
         IECData::utc_time (val)=>encode_octet_string(0,val,buffer,0,fill),
-        _=>{println!("unkowntype in sizeIECDataElement");0}
+        //_=>{println!("unkowntype in sizeIECDataElement");0}
     };
     //println!("length {},dataSetSize {}",size_length(dataSetSize),dataSetSize);
 
@@ -204,7 +204,7 @@ pub fn encodeIECDataElement(data: & IECData, buffer: &mut[u8], pos:usize) ->usiz
         IECData::structure(val)=>encode_structure(0xa2,&val,buffer,new_pos,fill),
         IECData::octet_string(val)=> encode_octet_string(0x89, &val, buffer, new_pos, fill),
         IECData::utc_time(val)=> encode_octet_string(0x91, val, buffer, new_pos, fill),
-        _=>{panic!("unknown data type");}
+        //_=>{panic!("unknown data type");}
     };
 
     new_pos

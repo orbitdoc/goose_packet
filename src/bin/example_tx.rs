@@ -2,7 +2,7 @@ extern crate goose_packet;
 
 use pnet::datalink::{self,interfaces,Channel, NetworkInterface};
 use goose_packet::types::{IECGoosePdu,EthernetHeader,IECData};
-use goose_packet::pdu::{encodeGooseFrame,getTimeMs};
+use goose_packet::pdu::{encodeGooseFrame,getTimeMs,display_buffer};
 
 use std::env;
 
@@ -103,6 +103,8 @@ fn main(){
     goose_pdu.numDatSetEntries=goose_pdu.allData.len() as u32;    
     let mut buffer=[0 as u8;GOOSE_BUFFER_SIZE];
     let goose_frame_size=encodeGooseFrame(&mut ether_header,&goose_pdu,&mut buffer,0);
+
+    display_buffer(&buffer,goose_frame_size);
 
     //tx.build_and_send(1, goose_frame_size, &mut |packet: &mut [u8]| {
     //    packet.copy_from_slice(&buffer[..goose_frame_size]);

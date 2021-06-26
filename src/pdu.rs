@@ -16,7 +16,7 @@ pub fn encodeGooseFrame(header: & mut EthernetHeader, pdu: & IECGoosePdu, buffer
     let legnth_byte=goose_length.to_be_bytes();
     header.length.copy_from_slice(&legnth_byte[6..]);
     encodeEthernetHeader(header,buffer,0);
-    display_buffer(&buffer[pos..],new_pos);
+    //display_buffer(&buffer[pos..],new_pos);
     new_pos
 }
 pub fn encodeEthernetHeader(header: & EthernetHeader, buffer: &mut[u8], pos:usize) ->usize{
@@ -43,7 +43,7 @@ pub fn encodeEthernetHeader(header: & EthernetHeader, buffer: &mut[u8], pos:usiz
 
     buffer[new_pos..new_pos+2].copy_from_slice(&header.length);
     new_pos=new_pos+2;
-    println!("length {:?}",header.length);
+    //println!("length {:?}",header.length);
 
     buffer[new_pos..new_pos+2].copy_from_slice(&[0 ;2]); // reserved 1
     new_pos=new_pos+2;
@@ -74,7 +74,7 @@ pub fn getTimeMs()->[u8;8]{
     time_array
 }
 
-fn display_buffer( buffer: &[u8], size:usize){
+pub fn display_buffer( buffer: &[u8], size:usize){
     for i in 0..std::cmp::min(buffer.len(),size){
         if (i)%8==0 {
             print!("{:06x} ",i);
@@ -118,7 +118,7 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
 
     header.length.copy_from_slice(&buffer[new_pos..new_pos+2]);
     new_pos=new_pos+2;
-    println!("dcode header {:?}",header);
+    //println!("decode header {:?}",header);
 
     //buffer[new_pos..new_pos+2].copy_from_slice(&[0 ;2]); // reserved 1
     new_pos=new_pos+2;
