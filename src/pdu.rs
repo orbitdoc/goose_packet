@@ -114,6 +114,8 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
 
         header.TCI.copy_from_slice(&buffer[new_pos..new_pos+2]);
         new_pos=new_pos+2;
+        //https://github.com/libpnet/libpnet/issues/460
+        println!("vlan stripped");
     }
 
 
