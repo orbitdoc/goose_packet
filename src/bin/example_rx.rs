@@ -1,12 +1,10 @@
 extern crate goose_packet;
 
 use pnet::datalink::{self,interfaces,Channel, NetworkInterface};
-use goose_packet::types::{IECGoosePdu,EthernetHeader,IECData};
-use goose_packet::pdu::{encodeGooseFrame,getTimeMs,decodeGooseFrame,display_buffer};
+use goose_packet::types::{IECGoosePdu,EthernetHeader};
+use goose_packet::pdu::{decodeGooseFrame, display_buffer};
 
 use std::env;
-
-const GOOSE_BUFFER_SIZE:usize = 512;
 
 fn display_network_interfaces(){
     let interfaces = interfaces();
@@ -45,80 +43,34 @@ fn main(){
 
     };
 
-    let (mut tx, _) = match datalink::channel(&interface, Default::default()) {
+    let (_, mut rx) = match datalink::channel(&interface, Default::default()) {
         Ok(Channel::Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unknown channel type"),
         Err(e) => panic!("Error happened {}", e),
     };
 
-    let mut ether_header= EthernetHeader{
-        srcAddr:[00 as u8;6],
-        dstAddr:[0x01,0x0C,0xCD,0x01,0x00,0x00],
-        TPID:[0x81,0x00],
-        TCI:[0x80,0x01], 
-        ehterType:[0x88,0xB8],
-        APPID:[0x01,0x01],
-        length:[0x00,0x00]
-    };
-    let current_time=getTimeMs();
-    let mut goose_pdu= IECGoosePdu{
-        gocbRef:"testGoose".to_string(),
-        timeAllowedtoLive:6400,
-        datSet:"test_datSet".to_string(),
-        goID:"test_ID".to_string(),
-        t:current_time,
-        stNum:12,
-        sqNum:23,
-        simulation:false,
-        confRev:5,
-        ndsCom:false,
-        numDatSetEntries:1,
-        allData:
-            vec![
-            IECData::int8(2),
-            IECData::int16(2345),
-            IECData::array(
-                vec![
-                    IECData::int32(-234567),
-                    IECData::int32(8388608),
-                    IECData::int32(-8388608),
-                ]),
-            IECData::structure(
-                vec![                
-                IECData::int64(12345678901234),
-                IECData::int32u(456),
-                IECData::int32u(4294967040),       
-                IECData::structure(
-                    vec![                    
-                        IECData::float32(0.123),
-                        IECData::float64(0.123456),
-                        ]),
-                ]),
-            IECData::octet_string(vec![0x22,0x33,0x66]),
-            IECData::utc_time(current_time),
-            IECData::boolean(true),
-            IECData::boolean(false),
-            IECData::visible_string("abc234".to_string()),
-            IECData::mms_string("hÃllo".to_string()),
-            IECData::bit_string{padding:3,val:vec![0x00,0x01]}
-
-            ]
-        
-        };
-
-    goose_pdu.numDatSetEntries=goose_pdu.allData.len() as u32;    
-    let mut buffer=[0 as u8;GOOSE_BUFFER_SIZE];
-    let goose_frame_size=encodeGooseFrame(&mut ether_header,&goose_pdu,&mut buffer,0);
-
-    display_buffer(&buffer,goose_frame_size);
-    
     let mut rx_header:EthernetHeader=Default::default();
     let mut rx_pdu:IECGoosePdu=Default::default();
-    decodeGooseFrame(&mut rx_header,&mut rx_pdu,&buffer,0);   
-    //tx.build_and_send(1, goose_frame_size, &mut |packet: &mut [u8]| {
-    //    packet.copy_from_slice(&buffer[..goose_frame_size]);
-    //});
+    println!("start listening goose messages");
 
-    tx.send_to(&buffer[..goose_frame_size],None);
+    loop {
+        match rx.next() {
+            Ok(packet) => {
+                println!("something received");
+                //display_buffer(packet, packet.len());
+                let new_pos=decodeGooseFrame(&mut rx_header,&mut rx_pdu,&packet,0);   
+                if new_pos>0
+                {
+                    println!("decode header {:?}",rx_header);
+                    println!("decode pdu {:?}",rx_pdu);
+                }
+
+            },
+            Err(e) => {
+                // If an error occurs, we can handle it here
+                panic!("An error occurred while reading: {}", e);
+            }
+        }  
+    }
     
 }

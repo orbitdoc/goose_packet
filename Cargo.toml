@@ -8,3 +8,7 @@ edition = "2018"
 
 [dependencies.pnet]
 version = "0.27.2"
+
+# https://github.com/libpnet/libpnet/issues/481
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.8", features = [ "std" ] }

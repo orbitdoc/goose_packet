@@ -90,6 +90,9 @@ pub fn display_buffer( buffer: &[u8], size:usize){
 pub fn decodeGooseFrame(header: & mut EthernetHeader, pdu: &  mut IECGoosePdu, buffer: &[u8], pos:usize) ->usize{
     let mut new_pos=pos;
     new_pos=decodeEthernetHeader(header,buffer,new_pos);
+    if new_pos==0 { 
+        return new_pos;
+    }
     new_pos=decodeIECGoosePdu(pdu,buffer,new_pos);
     new_pos
 }
@@ -105,14 +108,21 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
     new_pos=new_pos+6;
 
     header.TPID.copy_from_slice(&buffer[new_pos..new_pos+2]);
-    new_pos=new_pos+2;
 
-    header.TCI.copy_from_slice(&buffer[new_pos..new_pos+2]);
-    new_pos=new_pos+2;
+    if header.TPID ==[0x81,0x00]{ //if vlan
+        new_pos=new_pos+2;
+
+        header.TCI.copy_from_slice(&buffer[new_pos..new_pos+2]);
+        new_pos=new_pos+2;
+    }
+
 
     header.ehterType.copy_from_slice(&buffer[new_pos..new_pos+2]);
     new_pos=new_pos+2;
-
+    if header.ehterType !=[0x88,0xb8]
+    {
+        return pos;
+    }
     header.APPID.copy_from_slice(&buffer[new_pos..new_pos+2]);
     new_pos=new_pos+2;
 
