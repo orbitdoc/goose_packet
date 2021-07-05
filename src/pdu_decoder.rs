@@ -41,7 +41,7 @@ pub fn decodeIECDataElement(buffer: &[u8], pos:usize) ->(usize,IECData){
                     new_pos=decode_interger_64(& mut val, buffer, new_pos,length);
                     return (new_pos,IECData::int64 (val));                },
                 _=>{
-                    panic!("oversize interger");
+                    panic!("oversize signed interger");
                 }
             }
         },
@@ -63,16 +63,22 @@ pub fn decodeIECDataElement(buffer: &[u8], pos:usize) ->(usize,IECData){
                     return (new_pos,IECData::int32u (val));
                 },
                 5=>{
+                    // only occur when 32bit unsigned prepend with zero
+                    if buffer[new_pos]!=0x00
+                    {
+                        panic!("oversize unsigned interger");
+                    }
                     let mut val:u32=0;
                     new_pos=decode_unsigned(& mut val, buffer, new_pos+1,length-1);
                     return (new_pos,IECData::int32u (val));
                 },
                 6..=8=>{
-                    panic!("oversize interger");
+                    // no support for u64
+                    panic!("oversize unsigned interger");
 
                 },
                 _=>{
-                    panic!("oversize interger");
+                    panic!("oversize unsigned interger");
                 }
             }
         },

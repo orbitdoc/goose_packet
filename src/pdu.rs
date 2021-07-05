@@ -38,6 +38,8 @@ pub fn encodeEthernetHeader(header: & EthernetHeader, buffer: &mut[u8], pos:usiz
     buffer[new_pos..new_pos+2].copy_from_slice(&header.ehterType);
     new_pos=new_pos+2;
 
+
+    // Start of GOOSE length
     buffer[new_pos..new_pos+2].copy_from_slice(&header.APPID);
     new_pos=new_pos+2;
 

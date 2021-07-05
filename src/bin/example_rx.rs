@@ -2,7 +2,7 @@ extern crate goose_packet;
 
 use pnet::datalink::{self,interfaces,Channel, NetworkInterface};
 use goose_packet::types::{IECGoosePdu,EthernetHeader};
-use goose_packet::pdu::{decodeGooseFrame, display_buffer};
+use goose_packet::pdu::{decodeGooseFrame,};
 
 use std::env;
 

@@ -5,8 +5,9 @@ use crate::types::{*};
 use crate::basic_encoder::{*};
 
 pub fn encodeIECGoosePdu(pdu: & IECGoosePdu, buffer: &mut[u8], pos:usize) ->usize{
-
+    // first pass cacluate the length
     let (goosePduLength,dataSetSize)=sizeIECGoosePdu(pdu,buffer);
+    // second pass fill the buffer
     fillIECGoosePdu(pdu, buffer, pos, goosePduLength, dataSetSize)
 }
 
