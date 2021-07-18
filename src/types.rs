@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
+use serde::{Serialize, Deserialize};
 
-
-#[derive(Debug)]
+#[derive(Debug,Serialize, Deserialize)]
 pub enum IECData{
     array(Vec<IECData>),
     structure(Vec<IECData>),

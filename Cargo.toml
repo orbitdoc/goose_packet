@@ -12,3 +12,7 @@ version = "0.27.2"
 # https://github.com/libpnet/libpnet/issues/481
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.8", features = [ "std" ] }
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

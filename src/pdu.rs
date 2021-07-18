@@ -134,11 +134,9 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
     new_pos=new_pos+2;
     //println!("decode header {:?}",header);
 
-    //buffer[new_pos..new_pos+2].copy_from_slice(&[0 ;2]); // reserved 1
-    new_pos=new_pos+2;
-
-    //buffer[new_pos..new_pos+2].copy_from_slice(&[0 ;2]); // reserved 2
-    new_pos=new_pos+2;
+    new_pos=new_pos+2;  // reserved 1
+    
+    new_pos=new_pos+2; // reserved 2
 
     new_pos
 
