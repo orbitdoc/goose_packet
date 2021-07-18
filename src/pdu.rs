@@ -15,7 +15,7 @@ pub fn encodeGooseFrame(header: & mut EthernetHeader, pdu: & IECGoosePdu, buffer
     let goose_length=new_pos-26+8;
     let legnth_byte=goose_length.to_be_bytes();
     header.length.copy_from_slice(&legnth_byte[6..]);
-    encodeEthernetHeader(header,buffer,0);
+    encodeEthernetHeader(header,buffer,pos);
     //display_buffer(&buffer[pos..],new_pos);
     new_pos
 }
