@@ -65,8 +65,8 @@ fn main(){
     let mut rx_header:EthernetHeader=Default::default();
     let mut rx_pdu:IECGoosePdu=Default::default();
     println!("decode as:");
-    let new_pos=decodeGooseFrame(&mut rx_header,&mut rx_pdu,& buffer,0);   
-    if new_pos>0
+    let result  =decodeGooseFrame(&mut rx_header,&mut rx_pdu,& buffer,0);   
+    if result.is_ok()
     {
         println!("header {:?}",rx_header);
         println!("pdu {:?}",rx_pdu);

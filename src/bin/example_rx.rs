@@ -58,8 +58,8 @@ fn main(){
             Ok(packet) => {
                 println!("something received");
                 //display_buffer(packet, packet.len());
-                let new_pos=decodeGooseFrame(&mut rx_header,&mut rx_pdu,&packet,0);   
-                if new_pos>0
+                let result=decodeGooseFrame(&mut rx_header,&mut rx_pdu,&packet,0);   
+                if result.is_ok()
                 {
                     println!("decode header {:?}",rx_header);
                     println!("decode pdu {:?}",rx_pdu);

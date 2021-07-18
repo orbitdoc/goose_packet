@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
 
+use crate::error::GooseError;
 use crate::types::{*};
 
 use crate::pdu_encoder::{*};
@@ -89,17 +90,14 @@ pub fn display_buffer( buffer: &[u8], size:usize){
     print!("\n");
 }
 
-pub fn decodeGooseFrame(header: & mut EthernetHeader, pdu: &  mut IECGoosePdu, buffer: &[u8], pos:usize) ->usize{
+pub fn decodeGooseFrame(header: & mut EthernetHeader, pdu: &  mut IECGoosePdu, buffer: &[u8], pos:usize) ->Result<usize,GooseError>{
     let mut new_pos=pos;
-    new_pos=decodeEthernetHeader(header,buffer,new_pos);
-    if new_pos==0 { 
-        return new_pos;
-    }
-    new_pos=decodeIECGoosePdu(pdu,buffer,new_pos);
-    new_pos
+    new_pos=decodeEthernetHeader(header,buffer,new_pos)?;
+    new_pos=decodeIECGoosePdu(pdu,buffer,new_pos)?;
+    Ok(new_pos)
 }
 
-pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usize) ->usize{
+pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usize) ->Result<usize,GooseError>{
 
     let mut new_pos=pos;
 
@@ -122,11 +120,14 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
 
 
     header.ehterType.copy_from_slice(&buffer[new_pos..new_pos+2]);
-    new_pos=new_pos+2;
     if header.ehterType !=[0x88,0xb8]
     {
-        return pos;
+        return Err(GooseError{
+            message:"not a goose packet".to_string(),
+            pos:new_pos
+        });
     }
+    new_pos=new_pos+2;
     header.APPID.copy_from_slice(&buffer[new_pos..new_pos+2]);
     new_pos=new_pos+2;
 
@@ -138,6 +139,6 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
     
     new_pos=new_pos+2; // reserved 2
 
-    new_pos
+    Ok(new_pos)
 
 }
