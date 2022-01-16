@@ -24,6 +24,7 @@ To get a local copy up and running follow these simple steps.
 
 2. Build Rust packages
    ```sh
+   cd goose_packet/
    cargo build
    ```
 
@@ -44,11 +45,15 @@ There are multile examples in src/bin.
    In Windows, it may be `'\Device\NPF_{?????????}' `; In Linux, it may be `'eth0'`.
    You can also try:
 
-    ```sh
+   ```sh
    cargo run --bin example_tx
    ```  
    The error message will list all available network interfaces.
+    Notice, `sudo` may be needed to run the example in Linux:
 
+    ```sh
+    sudo ./target/debug/example_tx 'name-of-your-network-interface'
+    ```  
 
 3. Example of receiving GOOSE frame(s):
 
@@ -57,3 +62,8 @@ There are multile examples in src/bin.
    cargo run --bin example_rx 'name-of-your-network-interface' 
    ```
     In the second terminal, run example 2, and there should be update in the first terminal.
+
+    Again, when `sudo` is needed, try:
+     ```sh
+    sudo ./target/debug/example_rx 'name-of-your-network-interface'
+    ```     
