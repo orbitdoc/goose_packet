@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 
 use crate::error::GooseError;
-use crate::types::{*};
+pub use crate::types::{*};
 
 use crate::pdu_encoder::{*};
 use crate::pdu_decoder::{*};
@@ -136,7 +136,7 @@ pub fn decodeEthernetHeader(header: & mut EthernetHeader, buffer: &[u8], pos:usi
     //println!("decode header {:?}",header);
 
     new_pos=new_pos+2;  // reserved 1
-    
+
     new_pos=new_pos+2; // reserved 2
 
     Ok(new_pos)
