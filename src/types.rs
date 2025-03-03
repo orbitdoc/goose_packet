@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug,Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize, Clone)]
 pub enum IECData{
     array(Vec<IECData>),
     structure(Vec<IECData>),
@@ -26,7 +26,7 @@ pub enum IECData{
     octet_string(Vec<u8>),
     utc_time([u8;8])
 }
-#[derive(Debug,Default)]
+#[derive(Debug,Default,Clone)]
 pub struct EthernetHeader {
     pub srcAddr:[u8;6],
     pub dstAddr:[u8;6],
@@ -37,7 +37,7 @@ pub struct EthernetHeader {
     pub length:[u8;2]
 }
 
-#[derive(Debug,Default)]
+#[derive(Debug,Default,Clone)]
 pub struct IECGoosePdu {
     pub gocbRef: String,
     pub timeAllowedtoLive: u32,
