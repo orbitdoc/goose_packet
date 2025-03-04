@@ -14,7 +14,10 @@ To get a local copy up and running follow these simple steps.
 * Rust (>1.5)
     https://www.rust-lang.org/learn/get-started
     
-
+* Pnet
+   Vheck requirement for pnet, especially on Windows platform:
+   https://github.com/libpnet/libpnet/blob/49428d3da6d60b506261269a329ca8e6be79b241/README.md
+   https://github.com/libpnet/libpnet/issues/332#issuecomment-558512107
 ### Installation
 
 1. Clone the repo
