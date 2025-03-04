@@ -57,7 +57,7 @@ There are multile examples in src/bin.
 
 3. Example of receiving GOOSE frame(s):
 
-    In fisrt teminal, run the following example to start listening GOOOSE packets. 
+    In first terminal, run the following example to start listening GOOOSE packets. 
    ```sh
    cargo run --bin example_rx 'name-of-your-network-interface' 
    ```
