@@ -102,7 +102,7 @@ pub fn decode_bit_string(value:& mut [u8],padding:&mut u8,buffer: &[u8],pos:usiz
     for i in 0..value.len()  {
         value[value.len()-i-1]=buffer[new_pos+i].reverse_bits();
     }
-    new_pos+length
+    new_pos+length-1 //-1 since padding takes 1 byte in lenght, should be euqvalent to new_pos+value.len()
     
 }
 pub fn decode_tag_length(tag:&mut u8,value:&mut usize,buffer: &[u8],pos:usize) ->usize{
@@ -137,7 +137,7 @@ pub fn decode_tag_length(tag:&mut u8,value:&mut usize,buffer: &[u8],pos:usize) -
     
         },
         _=>{
-            if buffer[new_pos]>0x83 {panic!("unexpexted legnth");}
+            if buffer[new_pos]>0x83 {panic!("unexpected length");}
             *value=buffer[new_pos]  as usize;
             new_pos+=1;  
 

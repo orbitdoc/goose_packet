@@ -190,7 +190,7 @@ pub fn encode_tag_length(tag:u8,value: usize,buffer: &mut[u8],pos:usize,fill:boo
         new_pos+=1;  
         buffer[new_pos]=(value/256) as u8;
         new_pos+=1;     
-        buffer[new_pos]=(value&256) as u8;
+        buffer[new_pos]=(value&0xff) as u8;
         new_pos+=1;     
     }
     else {
@@ -201,7 +201,7 @@ pub fn encode_tag_length(tag:u8,value: usize,buffer: &mut[u8],pos:usize,fill:boo
         new_pos+=1;     
         buffer[new_pos]=((value& 0xffff) / 0x100) as u8;
         new_pos+=1;     
-        buffer[new_pos]=(value&256) as u8;
+        buffer[new_pos]=(value&0xff) as u8;
         new_pos+=1;         
 
     }
